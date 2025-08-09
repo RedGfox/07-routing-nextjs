@@ -3,7 +3,7 @@
 import css from './NotePage.module.css';
 
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { Toaster } from 'react-hot-toast';
 
@@ -19,26 +19,31 @@ import { fetchNotes } from '@/lib/api';
 import { SearchBox } from '@/components/SearchBox/SearchBox';
 
 interface NotesClientProps {
+  tag: string | null;
   initialData: {
     notes: Note[];
     totalPages: number;
   };
-  initialQuery: string;
   initialPage: number;
 }
 
 export default function NotesClient({
   initialData,
-  initialQuery,
+  tag,
   initialPage,
 }: NotesClientProps) {
   const [currentPage, setCurrentPage] = useState(initialPage);
-  const [query, setQuery] = useState(initialQuery);
+  const [searchQuery, setSearchQuery] = useState('');
   const [isOpenModal, setIsOpenModal] = useState(false);
 
+  useEffect(() => {
+    setCurrentPage(1);
+    setSearchQuery('');
+  }, [tag]);
+
   const { data, isError, isLoading, isSuccess } = useQuery({
-    queryKey: ['notes', query, currentPage],
-    queryFn: () => fetchNotes(query, currentPage),
+    queryKey: ['notes', tag, searchQuery, currentPage],
+    queryFn: () => fetchNotes(tag ?? 'All', searchQuery, currentPage),
     placeholderData: keepPreviousData,
     initialData,
     refetchOnMount: false,
@@ -54,7 +59,7 @@ export default function NotesClient({
 
   const handleChange = useDebouncedCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setQuery(e.target.value);
+      setSearchQuery(e.target.value);
       setCurrentPage(1);
     },
     1000
