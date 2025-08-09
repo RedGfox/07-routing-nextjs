@@ -2,9 +2,9 @@ import { fetchNoteById } from '@/lib/api';
 import ModalWrapper from './ModalWrapper';
 
 interface NotePageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function NoteModalPage({ params }: NotePageProps) {
