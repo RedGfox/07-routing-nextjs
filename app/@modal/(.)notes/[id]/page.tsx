@@ -1,5 +1,5 @@
 import { fetchNoteById } from '@/lib/api';
-import ModalWrapper from './NotePreview.client.tsx';
+import ModalWrapper from './NotePreview.client';
 
 interface NotePageProps {
   params: Promise<{
