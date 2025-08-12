@@ -1,5 +1,10 @@
 import { fetchNoteById } from '@/lib/api';
 import ModalWrapper from './NotePreview.client';
+import {
+  QueryClient,
+  dehydrate,
+  HydrationBoundary,
+} from '@tanstack/react-query';
 
 interface NotePageProps {
   params: Promise<{
@@ -9,11 +14,17 @@ interface NotePageProps {
 
 export default async function NoteModalPage({ params }: NotePageProps) {
   const { id } = await params;
-  const note = await fetchNoteById(id);
+  const queryClient = new QueryClient();
 
-  if (!note) {
-    return <p>Note not found</p>;
-  }
+  await queryClient.prefetchQuery({
+    queryKey: ['note', id],
+    queryFn: () => fetchNoteById(id),
+  });
+  const dehydratedState = dehydrate(queryClient);
 
-  return <ModalWrapper note={note} />;
+  return (
+    <HydrationBoundary state={dehydratedState}>
+      <ModalWrapper noteId={id} />
+    </HydrationBoundary>
+  );
 }

@@ -8,15 +8,20 @@ interface PageProps {
 export default async function NotesPage({ params }: PageProps) {
   const { slug = [] } = await params;
   const tag = slug[0] ?? 'All';
-  const fetchTag = tag === 'All' ? 'All' : tag;
+  const initialSSearch = '';
+  const initialPage = 1;
 
-  const initialData: FetchNoteResponse = await fetchNotes(fetchTag, '', 1);
+  const initialData: FetchNoteResponse = await fetchNotes(
+    tag,
+    initialSSearch,
+    initialPage
+  );
 
   return (
     <NotesClient
-      tag={tag === 'All' ? null : tag}
+      tag={tag}
       initialData={initialData}
-      initialPage={1}
+      initialPage={initialPage}
     />
   );
 }

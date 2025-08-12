@@ -3,18 +3,32 @@
 import { useRouter } from 'next/navigation';
 import NotePreview from '@/components/NotePreview/NotePreview';
 import { Modal } from '@/components/Modal/Modal';
-import { Note } from '@/types/note';
+import { useQuery } from '@tanstack/react-query';
+import { fetchNoteById } from '@/lib/api';
 
 interface ModalWrapperProps {
-  note: Note;
+  noteId: string;
 }
 
-export default function ModalWrapper({ note }: ModalWrapperProps) {
+export default function ModalWrapper({ noteId }: ModalWrapperProps) {
   const router = useRouter();
+
+  const {
+    data: note,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ['note', noteId],
+    queryFn: () => fetchNoteById(noteId),
+  });
 
   const handleClose = () => {
     router.back();
   };
+
+  if (isLoading) return <Modal onClose={handleClose}>Loading...</Modal>;
+  if (isError || !note)
+    return <Modal onClose={handleClose}>Error loading note</Modal>;
 
   return (
     <Modal onClose={handleClose}>

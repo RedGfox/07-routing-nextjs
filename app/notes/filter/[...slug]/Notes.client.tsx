@@ -19,7 +19,7 @@ import { fetchNotes } from '@/lib/api';
 import { SearchBox } from '@/components/SearchBox/SearchBox';
 
 interface NotesClientProps {
-  tag: string | null;
+  tag: string;
   initialData: {
     notes: Note[];
     totalPages: number;
@@ -43,9 +43,14 @@ export default function NotesClient({
 
   const { data, isError, isLoading, isSuccess } = useQuery({
     queryKey: ['notes', tag, searchQuery, currentPage],
-    queryFn: () => fetchNotes(tag ?? 'All', searchQuery, currentPage),
+    queryFn: () => fetchNotes(tag, searchQuery, currentPage),
     placeholderData: keepPreviousData,
-    initialData,
+    initialData:
+      tag === initialData.notes[0]?.tag &&
+      searchQuery === '' &&
+      currentPage === initialPage
+        ? initialData
+        : undefined,
     refetchOnMount: false,
   });
 
@@ -57,13 +62,10 @@ export default function NotesClient({
 
   const handleCloseModal = () => setIsOpenModal(false);
 
-  const handleChange = useDebouncedCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchQuery(e.target.value);
-      setCurrentPage(1);
-    },
-    1000
-  );
+  const handleChange = useDebouncedCallback((value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
+  }, 1000);
   return (
     <div className={css.app}>
       <div className={css.toolbar}>
