@@ -20,6 +20,7 @@ export default function ModalWrapper({ noteId }: ModalWrapperProps) {
   } = useQuery({
     queryKey: ['note', noteId],
     queryFn: () => fetchNoteById(noteId),
+    refetchOnMount: false,
   });
 
   const handleClose = () => {
